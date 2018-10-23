@@ -302,7 +302,8 @@ module.exports = class CheckYourAnswers extends ValidationStep {
 
     // Load courts data into session and select court automatically.
     req.session.court = CONF.commonProps.court;
-    req.session.courts = courtsAllocation.allocateCourt();
+    req.session.courts = courtsAllocation
+      .allocateCourt(req.session.reasonForDivorce);
     ga.trackEvent('Court_Allocation', 'Allocated_court', req.session.courts, 1);
 
     // Get user token.
@@ -323,6 +324,7 @@ module.exports = class CheckYourAnswers extends ValidationStep {
 
     submission.submit(authToken, payload)
       .then(response => {
+        delete req.session.submissionStarted;
         // Check for errors.
         if (response && response.error) {
           throw Object.assign({}, { message: `Error in transformation response, ${JSON.stringify(response)}` });
@@ -330,7 +332,6 @@ module.exports = class CheckYourAnswers extends ValidationStep {
         if (response && !response.caseId) {
           throw Object.assign({}, { message: `Case ID missing in transformation response, ${JSON.stringify(response)}` });
         }
-        delete req.session.submissionStarted;
         // Store the resulting case identifier in session for later use.
         req.session.caseId = response.caseId;
         res.redirect(this.next(null, req.session).url);
