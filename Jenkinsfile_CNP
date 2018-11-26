@@ -6,6 +6,8 @@ String product = "div"
 String component = "pfe"
 
 withPipeline("nodejs", product, component) {
+  enableDockerBuild()
+  enableDeployToAKS()
   after('build') {
     sh 'yarn setup'
   }
