@@ -29,27 +29,28 @@ data "azurerm_key_vault_secret" "redis_secret" {
 }
 
 locals {
-  aseName         = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
-  public_hostname = "div-pfe-${var.env}.service.${local.aseName}.internal"
+  aseName                             = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
+  public_hostname                     = "div-pfe-${var.env}.service.${local.aseName}.internal"
 
-  local_env = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
+  local_env                           = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
 
-  previewVaultName    = "${var.reform_team}-aat"
-  nonPreviewVaultName = "${var.reform_team}-${var.env}"
-  vaultName           = "${(var.env == "preview" || var.env == "spreview") ? local.previewVaultName : local.nonPreviewVaultName}"
+  previewVaultName                    = "${var.reform_team}-aat"
+  nonPreviewVaultName                 = "${var.reform_team}-${var.env}"
+  vaultName                           = "${(var.env == "preview" || var.env == "spreview") ? local.previewVaultName : local.nonPreviewVaultName}"
 
-  service_auth_provider_url = "${var.service_auth_provider_url == "" ? "http://${var.idam_s2s_url_prefix}-${local.local_env}.service.core-compute-${local.local_env}.internal" : var.service_auth_provider_url}"
+  service_auth_provider_url           = "${var.service_auth_provider_url == "" ? "http://${var.idam_s2s_url_prefix}-${local.local_env}.service.core-compute-${local.local_env}.internal" : var.service_auth_provider_url}"
 
-  case_progression_service_url       = "${var.case_progression_service_url == "" ? "http://div-cps-${local.local_env}.service.core-compute-${local.local_env}.internal" : var.case_progression_service_url}"
-  evidence_management_client_api_url = "${var.evidence_management_client_api_url == "" ? "http://div-emca-${local.local_env}.service.core-compute-${local.local_env}.internal" : var.evidence_management_client_api_url}"
-  fees_and_payments_url              = "${var.fees_and_payments_url == "" ? "http://div-fps-${local.local_env}.service.core-compute-${local.local_env}.internal" : var.fees_and_payments_url}"
+  case_orchestration_service_url      = "${var.case_orchestration_service_url == "" ? "http://div-cos-${local.local_env}.service.core-compute-${local.local_env}.internal" : var.case_orchestration_service_url}"
+  evidence_management_client_api_url  = "${var.evidence_management_client_api_url == "" ? "http://div-emca-${local.local_env}.service.core-compute-${local.local_env}.internal" : var.evidence_management_client_api_url}"
+  fees_and_payments_url               = "${var.fees_and_payments_url == "" ? "http://div-fps-${local.local_env}.service.core-compute-${local.local_env}.internal" : var.fees_and_payments_url}"
+  decree_nisi_frontend_url            = "${var.decree_nisi_frontend_url == "" ? "https://div-dn-${local.local_env}.service.core-compute-${local.local_env}.internal" : var.decree_nisi_frontend_url}"
+
   status_health_endpoint             = "/status/health"
 
   asp_name = "${var.env == "prod" ? "div-pfe-prod" : "${var.raw_product}-${var.env}"}"
-  asp_rg = "${var.env == "prod" ? "div-pfe-prod" : "${var.raw_product}-${var.env}"}"
+  asp_rg   = "${var.env == "prod" ? "div-pfe-prod" : "${var.raw_product}-${var.env}"}"
 
-  appinsights_name = "${var.env == "preview" ? "${var.product}-${var.reform_service_name}-appinsights-${var.env}" : "${var.product}-${var.env}"}"
-
+  appinsights_name           = "${var.env == "preview" ? "${var.product}-${var.reform_service_name}-appinsights-${var.env}" : "${var.product}-${var.env}"}"
   appinsights_resource_group = "${var.env == "preview" ? "${var.product}-${var.reform_service_name}-${var.env}" : "${var.product}-${var.env}"}"
 }
 
@@ -147,12 +148,15 @@ module "frontend" {
     EVIDENCE_MANAGEMENT_CLIENT_API_HEALTHCHECK_URL = "${local.evidence_management_client_api_url}${var.evidence_management_client_api_url == "" ? var.health_endpoint : local.status_health_endpoint}"
     EVIDENCE_MANAGEMENT_CLIENT_API_UPLOAD_ENDPOINT = "${var.evidence_management_client_api_upload_endpoint}"
 
-    // Case Progrssion Service
-    CASE_PROGRESSION_SERVICE_URL             = "${local.case_progression_service_url}${var.case_progression_base_path}"
-    CASE_PROGRESSION_SERVICE_HEALTHCHECK_URL = "${local.case_progression_service_url}${var.case_progression_service_url == "" ? var.health_endpoint : local.status_health_endpoint}"
+    // Case Orchestration Service
+    CASE_ORCHESTRATION_SERVICE_URL             = "${local.case_orchestration_service_url}${var.case_orchestration_base_path}"
+    CASE_ORCHESTRATION_SERVICE_HEALTHCHECK_URL = "${local.case_orchestration_service_url}${var.health_endpoint}"
 
     // Draft Store API
-    CASE_PROGRESSION_SERVICE_DRAFT_URL = "${local.case_progression_service_url}${var.draft_store_api_base_path}"
+    CASE_ORCHESTRATION_SERVICE_DRAFT_URL = "${local.case_orchestration_service_url}${var.draft_store_api_base_path}"
+
+    // Decree Nisi Frontend Url
+    DECREE_NISI_FRONTEND_URL = "${local.decree_nisi_frontend_url}"
 
     // Common Court Content
     SMARTSURVEY_FEEDBACK_URL      = "${var.survey_feedback_url}"
@@ -211,21 +215,42 @@ module "frontend" {
     COURT_NORTHWEST_PHONENUMBER             = "${var.court_northwest_phonenumber}"
     COURT_NORTHWEST_SITEID                  = "${var.court_northwest_siteid}"
     COURT_NORTHWEST_WEIGHT                  = "${var.court_northwest_weight}"
+
+    SERVICE_CENTRE_NAME                     = "${var.service_centre_name}"
+    COURT_SERVICE_CENTRE_NAME               = "${var.court_service_centre_name}"
+    COURT_SERVICE_CENTRE_CITY               = "${var.court_service_centre_city}"
+    COURT_SERVICE_CENTRE_POBOX              = "${var.court_service_centre_pobox}"
+    COURT_SERVICE_CENTRE_POSTCODE           = "${var.court_service_centre_postcode}"
+    COURT_SERVICE_CENTRE_OPENINGHOURS       = "${var.court_service_centre_openinghours}"
+    COURT_SERVICE_CENTRE_EMAIL              = "${var.court_service_centre_email}"
+    COURT_SERVICE_CENTRE_PHONENUMBER        = "${var.court_service_centre_phonenumber}"
+    COURT_SERVICE_CENTRE_SITEID             = "${var.court_service_centre_siteid}"
+    COURT_SERVICE_CENTRE_WEIGHT             = "${var.court_service_centre_weight}"
+
     COURT_EASTMIDLANDS_DIVORCE_FACT_RATIO   = "${var.court_eastmidlands_divorce_facts_ratio}"
     COURT_WESTMIDLANDS_DIVORCE_FACT_RATIO   = "${var.court_westmidlands_divorce_facts_ratio}"
     COURT_SOUTHWEST_DIVORCE_FACT_RATIO      = "${var.court_southwest_divorce_facts_ratio}"
-    COURT_SOUTHWEST_DIVORCE_FACT_RATIO      = "${var.court_northwest_divorce_facts_ratio}"
+    COURT_NORTHWEST_DIVORCE_FACT_RATIO      = "${var.court_northwest_divorce_facts_ratio}"
     DIVORCE_FACTS_RATIO                     = "${replace(jsonencode(var.divorce_facts_ratio), "/\"([0-9]*\\.?[0-9]*)\"/", "$1")}"
 
+    //Service centre facts distribution
+    SERVICE_CENTRE_DIVORCE_FACT_RATIO_BEHAVIOUR = "${var.court_service_centre_divorce_facts_ratio["unreasonable-behaviour"]}"
+    SERVICE_CENTRE_DIVORCE_FACT_RATIO_2_YEAR_SEPARATION = "${var.court_service_centre_divorce_facts_ratio["separation-2-years"]}"
+    SERVICE_CENTRE_DIVORCE_FACT_RATIO_5_YEAR_SEPARATION = "${var.court_service_centre_divorce_facts_ratio["separation-5-years"]}"
+    SERVICE_CENTRE_DIVORCE_FACT_RATIO_ADULTERY = "${var.court_service_centre_divorce_facts_ratio["adultery"]}"
+    SERVICE_CENTRE_DIVORCE_FACT_RATIO_DESERTION = "${var.court_service_centre_divorce_facts_ratio["desertion"]}"
+
     // Backwards compatibility envs, to be removed
-    EASTMIDLANDS_COURTWEIGHT = "${var.court_eastmidlands_court_weight}"
-    WESTMIDLANDS_COURTWEIGHT = "${var.court_westmidlands_court_weight}"
-    SOUTHWEST_COURTWEIGHT    = "${var.court_southwest_court_weight}"
-    NORTHWEST_COURTWEIGHT    = "${var.court_northwest_court_weight}"
+    EASTMIDLANDS_COURTWEIGHT      = "${var.court_eastmidlands_court_weight}"
+    WESTMIDLANDS_COURTWEIGHT      = "${var.court_westmidlands_court_weight}"
+    SOUTHWEST_COURTWEIGHT         = "${var.court_southwest_court_weight}"
+    NORTHWEST_COURTWEIGHT         = "${var.court_northwest_court_weight}"
 
     // Feature toggling through config
     FEATURE_IDAM                               = "${var.feature_idam}"
     FEATURE_FULL_PAYMENT_EVENT_DATA_SUBMISSION = "${var.feature_full_payment_event_data_submission}"
     FEATURE_REDIRECT_TO_APPLICATION_SUBMITTED  = "${var.feature_redirect_to_application_submitted}"
+    FEATURE_RESPONDENT_CONSENT                 = "${var.feature_respondent_consent}"
+    FEATURE_REDIRECT_ON_STATE                  = "${var.feature_redirect_on_state}"
   }
 }
