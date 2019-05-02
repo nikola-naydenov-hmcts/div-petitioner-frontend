@@ -1,10 +1,12 @@
 const content = require('app/steps/grounds-for-divorce/reason/content.json').resources.en.translation.content;
+const parseBool = require('app/core/utils/parseBool');
+const config = require('config');
 
 Feature('Basic divorce path');
 
 Scenario('Get a divorce', async function(I) {
 
-  I.amOnLoadedPage('/index');
+  I.amOnPage('/index');
   I.startApplication();
   I.wait(1);
   I.haveBrokenMarriage();
@@ -41,11 +43,17 @@ Scenario('Get a divorce', async function(I) {
   I.enterFinancialAdvice();
   I.enterClaimCosts();
 
-  const isDragAndDropSupported = await I.checkElementExist('.dz-hidden-input');
-  I.uploadMarriageCertificateFile(isDragAndDropSupported);
-
-  await I.checkMyAnswersAndValidateSession();
-
+  if(['safari', 'microsoftEdge'].includes(config.features.browserSupport)) {
+    I.withoutUploadFile();
+  } else {
+    const isDragAndDropSupported = await I.checkElementExist('.dz-hidden-input');
+    I.uploadMarriageCertificateFile(isDragAndDropSupported);
+  }
+  if (parseBool(config.features.ignoreSessionValidation)) {
+    I.checkMyAnswers();
+  } else{
+    await I.checkMyAnswersAndValidateSession();
+  }
   I.amDoneAndSubmitted();
 
 }).retry(2);

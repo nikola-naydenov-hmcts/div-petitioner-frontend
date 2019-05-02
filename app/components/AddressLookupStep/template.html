@@ -97,7 +97,6 @@
       </form>
 
       {% if fields.addresses.value and fields.postcode.value %}
-
       <form method="POST" accept-charset="utf-8" class="form" id="address-selector"
             enctype="application/x-www-form-urlencoded" autocomplete="off">
         <input type="hidden" name="_csrf" value="{{csrfToken}}">
@@ -108,7 +107,7 @@
           <select class="form-control" id="selectAddressIndex" name="selectAddressIndex" title="{{content.selectAnAddress}}" onchange="this.form.submit()">
             <option value="-1">{{fields.addresses.value | length }} {{ content.adressesFound}}</option>
             {%- for address in fields.addresses.value %}
-              <option value={{loop.index0}} {{ 'selected' if fields.selectAddressIndex.value == loop.index0 }}>{{address.formatted_address | replace("\n", ", ") | safe}}</option>
+              <option value={{loop.index0}} {{ 'selected' if fields.selectAddressIndex.value == loop.index0 }}>{{address.DPA.ADDRESS | safe}}</option>
             {%- endfor %}
           </select>
           <input type="hidden" name="addressType" value="postcode"/>
@@ -132,11 +131,9 @@
       {% endif %}
 
       {% ifAsync fields.address.value and fields.postcode.value %}
-
       <form method="POST" accept-charset="utf-8" class="form" id="address-postcode"
             enctype="application/x-www-form-urlencoded" autocomplete="off">
         <input type="hidden" name="_csrf" value="{{csrfToken}}">
-
         {% for line in fields.address.value %}
           <div class="form-group">
             <label class="form-label visually-hidden" for="addressLine{{loop.index0}}">Address Line {{loop.index0}}</label>

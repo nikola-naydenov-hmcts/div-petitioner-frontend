@@ -198,7 +198,7 @@ variable "fees_and_payments_url" {
 }
 
 variable "post_code_url" {
-  default = "https://postcodeinfo.service.justice.gov.uk"
+  default = "https://api.ordnancesurvey.co.uk/places/v1"
 }
 
 variable "hpkp_max_age" {
@@ -219,26 +219,6 @@ variable "rate_limiter_expire" {
 
 variable "feature_idam" {
   default = true
-}
-
-variable "feature_respondent_consent" {
-  default = false
-}
-
-variable "feature_full_payment_event_data_submission" {
-  default = true
-}
-
-variable "feature_redirect_to_application_submitted" {
-  default = "true"
-}
-
-variable "feature_redirect_on_state" {
-  default = "true"
-}
-
-variable "feature_release_510" {
-  default = false
 }
 
 variable "survey_feedback_url" {
@@ -281,14 +261,6 @@ variable "court_eastmidlands_siteid" {
   default = "AA01"
 }
 
-variable "court_eastmidlands_weight" {
-  default = 0
-}
-
-variable "court_eastmidlands_divorce_facts_ratio" {
-  default = ""
-}
-
 variable "court_westmidlands_name" {
   default = "West Midlands Regional Divorce Centre"
 }
@@ -321,14 +293,6 @@ variable "court_westmidlands_siteid" {
   default = "AA02"
 }
 
-variable "court_westmidlands_weight" {
-  default = 0
-}
-
-variable "court_westmidlands_divorce_facts_ratio" {
-  default = ""
-}
-
 variable "court_southwest_name" {
   default = "South West Regional Divorce Centre"
 }
@@ -359,14 +323,6 @@ variable "court_southwest_phonenumber" {
 
 variable "court_southwest_siteid" {
   default = "AA03"
-}
-
-variable "court_southwest_weight" {
-  default = 0.5
-}
-
-variable "court_southwest_divorce_facts_ratio" {
-  default = ""
 }
 
 variable "court_northwest_name" {
@@ -405,10 +361,6 @@ variable "court_northwest_siteid" {
   default = "AA04"
 }
 
-variable "court_northwest_weight" {
-  default = 0.5
-}
-
 variable "service_centre_name" {
   default = "Courts and Tribunals Service Centre"
 }
@@ -442,7 +394,7 @@ variable "court_service_centre_phonenumber" {
 }
 
 variable "court_service_centre_siteid" {
-  default = "AA01"
+  default = "AA07"
 }
 
 variable "court_phone_number" {
@@ -455,53 +407,6 @@ variable "court_opening_hours" {
 
 variable "court_email" {
   default = "divorce@justice.gov.uk"
-}
-
-variable "court_service_centre_weight" {
-  default = 0.30
-}
-
-variable "court_eastmidlands_court_weight" {
-  default = 0
-}
-
-variable "court_westmidlands_court_weight" {
-  default = 0
-}
-
-variable "court_southwest_court_weight" {
-  default = 0.5
-}
-
-variable "court_northwest_court_weight" {
-  default = 0.5
-}
-
-variable "court_northwest_divorce_facts_ratio" {
-  default = ""
-}
-
-variable "court_service_centre_divorce_facts_ratio" {
-  type = "map"
-  default = {
-    "unreasonable-behaviour" = 1
-    "separation-2-years" = 0
-    "separation-5-years" = 0
-    "adultery" = 0
-    "desertion" = 0
-  }
-}
-
-variable "divorce_facts_ratio" {
-  type = "map"
-
-  default = {
-    "unreasonable-behaviour" = 0.30
-    "separation-2-years"     = 0.37
-    "separation-5-years"     = 0.21
-    "adultery"               = 0.11
-    "desertion"              = 0.01
-  }
 }
 
 variable "common_tags" {

@@ -1,7 +1,5 @@
 const content = require('app/steps/grounds-for-divorce/reason/content.json').resources.en.translation.content;
 const moment = require('moment');
-const config = require('config');
-const parseBool = require('app/core/utils/parseBool');
 
 const twoYearsAgo = moment().subtract(2, 'years').subtract(1, 'day');
 const twoYearsAgoFormatted = {
@@ -58,6 +56,8 @@ Scenario('Adultery, with details', (I) => {
   I.selectAdulteryWhere();
   I.selectAdulteryWhen();
   I.enterAdulteryDetails();
+  I.enterAdulterySecondHandInfo();
+  I.enterLegalProceedings();
 });
 
 Scenario('2 years separation', (I) => {
@@ -70,10 +70,10 @@ Scenario('2 years separation', (I) => {
   I.enterMarriageDate(tenYearsAgoFormatted.day, tenYearsAgoFormatted.month, tenYearsAgoFormatted.year);
   I.amOnLoadedPage('/about-divorce/reason-for-divorce/reason');
   I.selectReasonForDivorce(content['2YearsSeparationHeading']);
-  if (parseBool(config.features.respondentConsent)) {
-    I.selectRespondentConsentObtained();
-  }
-  I.enterSeparationDate(twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year);
+  I.selectRespondentConsentObtained();
+  I.enterSeparationDateNew(twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year,
+    twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year);
+  I.selectLivingApartTime();
 
   I.enterLegalProceedings();
 });
@@ -88,13 +88,9 @@ Scenario('5 years separation', (I) => {
   I.enterMarriageDate(tenYearsAgoFormatted.day, tenYearsAgoFormatted.month, tenYearsAgoFormatted.year);
   I.amOnLoadedPage('/about-divorce/reason-for-divorce/reason');
   I.selectReasonForDivorce(content['5YearsSeparationHeading']);
-  if (parseBool(config.features.release510)) {
-    I.enterSeparationDateNew(fiveYearsAgoFormatted.day, fiveYearsAgoFormatted.month, fiveYearsAgoFormatted.year,
-      fiveYearsAgoFormatted.day, fiveYearsAgoFormatted.month, fiveYearsAgoFormatted.year);
-    I.selectLivingApartTime();
-  } else {
-    I.enterSeparationDate(fiveYearsAgoFormatted.day, fiveYearsAgoFormatted.month, fiveYearsAgoFormatted.year);
-  }
+  I.enterSeparationDateNew(fiveYearsAgoFormatted.day, fiveYearsAgoFormatted.month, fiveYearsAgoFormatted.year,
+    fiveYearsAgoFormatted.day, fiveYearsAgoFormatted.month, fiveYearsAgoFormatted.year);
+  I.selectLivingApartTime();
   I.enterLegalProceedings();
 });
 
@@ -108,12 +104,8 @@ Scenario('Exit if 5 years separation chosen but actual decision date is less', (
   I.enterMarriageDate(tenYearsAgoFormatted.day, tenYearsAgoFormatted.month, tenYearsAgoFormatted.year);
   I.amOnLoadedPage('/about-divorce/reason-for-divorce/reason');
   I.selectReasonForDivorce(content['5YearsSeparationHeading']);
-  if (parseBool(config.features.release510)) {
-    I.enterSeparationDateNew(twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year,
-      twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year);
-  } else {
-    I.enterSeparationDate(twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year);
-  }
+  I.enterSeparationDateNew(twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year,
+    twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year);
   I.seeCurrentUrlEquals('/exit/separation');
   I.navByClick('choose another reason');
   I.seeCurrentUrlEquals('/about-divorce/reason-for-divorce/reason');
@@ -129,12 +121,8 @@ Scenario('Exit if 5 years separation chosen but actual living apart date is less
   I.enterMarriageDate(tenYearsAgoFormatted.day, tenYearsAgoFormatted.month, tenYearsAgoFormatted.year);
   I.amOnLoadedPage('/about-divorce/reason-for-divorce/reason');
   I.selectReasonForDivorce(content['5YearsSeparationHeading']);
-  if (parseBool(config.features.release510)) {
-    I.enterSeparationDateNew(fiveYearsAgoFormatted.day, fiveYearsAgoFormatted.month, fiveYearsAgoFormatted.year,
-      twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year);
-  } else {
-    I.enterSeparationDate(twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year);
-  }
+  I.enterSeparationDateNew(fiveYearsAgoFormatted.day, fiveYearsAgoFormatted.month, fiveYearsAgoFormatted.year,
+    twoYearsAgoFormatted.day, twoYearsAgoFormatted.month, twoYearsAgoFormatted.year);
   I.seeCurrentUrlEquals('/exit/separation');
   I.navByClick('choose another reason');
   I.seeCurrentUrlEquals('/about-divorce/reason-for-divorce/reason');
@@ -175,8 +163,9 @@ Scenario('Deserted without agreement', function*(I) {
   I.enterAddressUsingPostcode('/petitioner-respondent/respondent-correspondence-address');
 
   I.selectReasonForDivorce(content['desertionHeading']);
-  I.enterDesertionDate();
   I.enterDesertionAgreement();
+  I.enterDesertionDate();
+  I.selectLivingApartTime();
   I.enterDesertionDetails();
 
   I.enterLegalProceedings();

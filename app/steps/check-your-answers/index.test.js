@@ -10,9 +10,9 @@ const idamMock = require('test/mocks/idam');
 const featureToggleConfig = require('test/util/featureToggles');
 const submission = require('app/services/submission');
 const statusCodes = require('http-status-codes');
-const courtsAllocation = require('app/services/courtsAllocation');
 const CONF = require('config');
 const ga = require('app/services/ga');
+const ExitStep = require('app/core/steps/ExitStep');
 
 const modulePath = 'app/steps/check-your-answers';
 
@@ -153,7 +153,7 @@ describe(modulePath, () => {
     });
   });
 
-  describe('help with fees refference number does not exists warning', () => {
+  describe('help with fees reference number does not exists warning', () => {
     beforeEach(done => {
       session = clone(mockSession);
       delete session.helpWithFeesReferenceNumber;
@@ -167,7 +167,7 @@ describe(modulePath, () => {
     });
   });
 
-  describe('help with fees refference number does not exists payment', () => {
+  describe('help with fees reference number does not exists payment', () => {
     beforeEach(done => {
       session = clone(mockSession);
       delete session.helpWithFeesReferenceNumber;
@@ -362,35 +362,6 @@ describe(modulePath, () => {
     });
   });
 
-  describe('getStepCtx', () => {
-    it('gets properties defined by step from the session', done => {
-      co(function* generator() {
-        const step = {
-          properties: {
-            property1: null,
-            property2: null
-          },
-          interceptor: ctx => {
-            return ctx;
-          }
-        };
-
-        session = {
-          property1: 'value1',
-          property2: 'value2',
-          property3: 'value3'
-        };
-
-        const ctx = yield underTest.getStepCtx(step, session);
-
-        expect(ctx.property1).to.equal(session.property1);
-        expect(ctx.property2).to.equal(session.property2);
-
-        done();
-      });
-    });
-  });
-
   describe('getStepCheckYourAnswersTemplate', () => {
     let ctx = {}, step = {};
 
@@ -406,8 +377,8 @@ describe(modulePath, () => {
       fields = { one: 1, two: 2 };
 
       step = {
-        // getStepCtx: sinon.stub().returns(ctx),
         interceptor: sinon.stub().returns(ctx),
+        populateWithPreExistingData: sinon.stub().returns(ctx),
         checkYourAnswersInterceptor: sinon.stub().returns(ctx),
         validate: sinon.stub().returns([true, []]),
         generateContent: sinon.stub().returns(content),
@@ -522,7 +493,6 @@ describe(modulePath, () => {
     });
   });
 
-
   describe('getNextTemplates', () => {
     let ctx = {}, step1 = {}, step2 = {};
 
@@ -538,6 +508,7 @@ describe(modulePath, () => {
       fields = { one: 1, two: 2 };
 
       const stepDefaults = {
+        populateWithPreExistingData: sinon.stub().returns(ctx),
         interceptor: sinon.stub().returns(ctx),
         checkYourAnswersInterceptor: sinon.stub().returns(ctx),
         validate: sinon.stub().returns([true, []]),
@@ -618,6 +589,17 @@ describe(modulePath, () => {
 
         yield underTest.getNextTemplates(step1, session);
         expect(session.nextStepUrl).to.equal('/step1');
+        done();
+      });
+    });
+
+    it('removes the next step url if the last step is an exit step', done => {
+      step2 = new ExitStep();
+      step2.checkYourAnswersTemplate = `${__dirname}/../../views/common/components/defaultCheckYouAnswersTemplate.html`;
+
+      co(function* generator() {
+        const templates = yield underTest.getNextTemplates(step1, session);
+        expect(templates.length).to.equal(1);
         done();
       });
     });
@@ -747,11 +729,11 @@ describe(modulePath, () => {
       submit = sinon.stub().resolves({
         error: null,
         status: 'success',
-        caseId: '1234567890'
+        caseId: '1234567890',
+        allocatedCourt: { courtId: 'randomlyAllocatedCourt' }
       });
       sinon.stub(submission, 'setup').returns({ submit });
       sinon.stub(ga, 'trackEvent');
-      sinon.spy(courtsAllocation, 'allocateCourt');
 
       postBody = {
         submit: true,
@@ -772,7 +754,6 @@ describe(modulePath, () => {
     afterEach(() => {
       ga.trackEvent.restore();
       submission.setup.restore();
-      courtsAllocation.allocateCourt.restore();
     });
 
     context('duplicate submission', () => {
@@ -803,13 +784,13 @@ describe(modulePath, () => {
               expect(sess.court[courtName]).to
                 .eql(CONF.commonProps.court[courtName]);
             });
-            expect(sess.courts).to.be.oneOf(courts);
+            expect(sess.courts).to.be.equal('randomlyAllocatedCourt');
           })
           .then(done, done);
       };
 
       testCustom(testSession, agent, underTest, [], () => {
-        expect(courtsAllocation.allocateCourt.calledOnce).to.eql(true);
+        // do nothing
       }, 'post', true, postBody);
     });
 
@@ -960,21 +941,33 @@ describe(modulePath, () => {
           selectAddressIndex: 0,
           addresses: [
             {
-              uprn: '100021861927',
-              organisation_name: '',
-              department_name: '',
-              po_box_number: '',
-              building_name: '',
-              sub_building_name: '',
-              building_number: 80,
-              thoroughfare_name: 'LANDOR ROAD',
-              dependent_thoroughfare_name: '',
-              dependent_locality: '',
-              double_dependent_locality: '',
-              post_town: 'LONDON',
-              postcode: 'SW9 9PE',
-              postcode_type: 'S',
-              formatted_address: '80 Landor Road\nLondon\nSW9 9PE'
+              DPA: {
+                UPRN: '100021861927',
+                UDPRN: '23903073',
+                ADDRESS: '80, LANDOR ROAD, LONDON, SW9 9PE',
+                BUILDING_NUMBER: '80',
+                THOROUGHFARE_NAME: 'LANDOR ROAD',
+                POST_TOWN: 'LONDON',
+                POSTCODE: 'SW9 9PE',
+                RPC: '1',
+                X_COORDINATE: 530318,
+                Y_COORDINATE: 175759,
+                STATUS: 'APPROVED',
+                LOGICAL_STATUS_CODE: '1',
+                CLASSIFICATION_CODE: 'P',
+                CLASSIFICATION_CODE_DESCRIPTION: 'Parent Shell',
+                LOCAL_CUSTODIAN_CODE: 5660,
+                LOCAL_CUSTODIAN_CODE_DESCRIPTION: 'LAMBETH',
+                POSTAL_ADDRESS_CODE: 'D',
+                POSTAL_ADDRESS_CODE_DESCRIPTION: 'A record which is linked to PAF',
+                BLPU_STATE_CODE_DESCRIPTION: 'Unknown/Not applicable',
+                TOPOGRAPHY_LAYER_TOID: 'osgb1000005560798',
+                LAST_UPDATE_DATE: '10/02/2016',
+                ENTRY_DATE: '19/03/2001',
+                LANGUAGE: 'EN',
+                MATCH: 1,
+                MATCH_DESCRIPTION: 'EXACT'
+              }
             }
           ],
           validPostcode: true,
@@ -1019,6 +1012,13 @@ describe(modulePath, () => {
           .to.equal(s.steps.ApplicationSubmitted.url);
       },
       'post', true, postBody);
+    });
+  });
+
+  describe('#isSkippable', () => {
+    it('Ensure we visit the check-your-answers page even if a statement of truth was saved to the draft', done => {
+      expect(underTest.isSkippable).to.equal(false);
+      done();
     });
   });
 });

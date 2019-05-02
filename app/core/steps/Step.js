@@ -67,7 +67,6 @@ module.exports = class Step {
     });
   }
 
-
   applyCtxToSession(ctx, session) {
     Object.assign(session, ctx);
     return session;
@@ -88,6 +87,10 @@ module.exports = class Step {
 
   validate(/* ctx, session*/) {
     return [true, []];
+  }
+
+  get isSkippable() {
+    return true;
   }
 
   generateContent(ctx, session, lang = 'en') {
