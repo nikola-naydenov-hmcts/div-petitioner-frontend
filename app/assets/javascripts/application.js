@@ -18,6 +18,8 @@ const saveProgress = require('./save-progress');
   global.DIVORCE = DIVORCE;
 })(window);
 
+
+/*
 $(document).ready(function() {
   //Call govuk toolkit constructor to use functionality show/hide content
   var showHideContent = new GOVUK.ShowHideContent();
@@ -27,7 +29,7 @@ $(document).ready(function() {
   var enableDisableButton = new GOVUK.EnableDisableButton();
   enableDisableButton.init();
 });
-
+*/
 function dateSlice(date)
 {
   if (date.value.length > date.maxLength)

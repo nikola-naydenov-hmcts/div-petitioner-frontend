@@ -5,7 +5,7 @@ const manifest = require('manifest.json');
 const assetPath = `/public/${manifest.STATIC_ASSET_PATH}/`;
 
 module.exports = (req, res, next) => {
-  res.locals.asset_path = assetPath;
+  res.locals.assetPath = assetPath;
   res.locals.session = req.session;
   res.locals.serviceName = CONF.serviceName;
   res.locals.googleAnalyticsId = CONF.google_analytics.propertyId;

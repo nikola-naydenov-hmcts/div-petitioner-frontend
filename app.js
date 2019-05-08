@@ -69,6 +69,9 @@ exports.init = listenForConnections => {
   //  moved here to make it at start of middleware as recommended in docs
   app.use(favicon(path.join(__dirname, 'public', manifest.STATIC_ASSET_PATH, 'images', 'favicon.ico')));
 
+
+  app.use('/assets', express.static(path.join(__dirname, '/node_modules/govuk-frontend/assets')));
+
   // Application settings
   app.set('view engine', 'html');
   app.set('views', [

@@ -19,6 +19,7 @@ module.exports = {
       'jquery',
       './node_modules/jquery-migrate/dist/jquery-migrate.js',
       './app/assets/javascripts/details.polyfill.js',
+      './node_modules/govuk-frontend/all.js',
       './app/assets/javascripts/application.js',
       './node_modules/dropzone/dist/dropzone.js',
       './app/assets/javascripts/documentUpload.js',

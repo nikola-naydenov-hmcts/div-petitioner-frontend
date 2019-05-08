@@ -1,4 +1,5 @@
 {% from "common/components/formElements.html" import yesNoRadioHeading %}
+{% from "components/radios/macro.njk" import govukRadios %}
 {% extends "question.html" %}
 
 {% block cookie_message %}
@@ -12,33 +13,66 @@
     {{ content.question | safe }}
 {% endblock %}
 
+
+{% block form %}
+
+{{ govukRadios({
+    classes: "govuk-radios--inline",
+    idPrefix: "changed-name",
+    name: "screenHasMarriageBroken",
+    fieldset: {
+        legend: {
+            text: "Have you changed your name?",
+            isPageHeading: true,
+            classes: "govuk-fieldset__legend--xl"
+        }
+    },
+    hint: {
+        text: "This includes changing your last name or spelling your name differently."
+    },
+    items: [
+        {
+            value: "yes",
+            text: "Yes"
+        },
+        {
+            value: "no",
+            text: "No"
+        }
+    ]
+}) }}
+
+{% endblock %}
+
+{% block saveAndClose %}{% endblock %}
+
+{#
 {% block form %}
 
     <p class="text"> {{content.line1 | safe }}</p>
 
     <fieldset class="form-group inline">
-      <legend class="visually-hidden">{{ content.question | safe }}</legend>
-      {{ yesNoRadioHeading(
-          legend = content.question,
-          name = 'screenHasMarriageBroken',
-          field = fields.screenHasMarriageBroken,
-          yes = content.yes,
-          no = content.no,
-          targetYes = '',
-          targetNo = 'marriage-broken-down-no',
-          screenReader = content.question
-      ) }}
+        <legend class="visually-hidden">{{ content.question | safe }}</legend>
+        {{ yesNoRadioHeading(
+            legend = content.question,
+            name = 'screenHasMarriageBroken',
+            field = fields.screenHasMarriageBroken,
+            yes = content.yes,
+            no = content.no,
+            targetYes = '',
+            targetNo = 'marriage-broken-down-no',
+            screenReader = content.question
+        ) }}
 
-      <div class="panel panel-border-narrow js-hidden" id="marriage-broken-down-no">
-        <div class="notice">
-          <em class="icon icon-important">
-            <span class="visuallyhidden">Warning</span>
-          </em>
-          <p class="normal-small"><br>{{ content.marriageBrokenDownNo | safe }}<br></p>
+        <div class="panel panel-border-narrow js-hidden" id="marriage-broken-down-no">
+            <div class="notice">
+                <em class="icon icon-important">
+                    <span class="visuallyhidden">Warning</span>
+                </em>
+                <p class="normal-small"><br>{{ content.marriageBrokenDownNo | safe }}<br></p>
+            </div>
         </div>
-      </div>
     </fieldset>
 
 {% endblock %}
-
-{% block saveAndClose %}{% endblock %}
+#}
