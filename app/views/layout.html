@@ -1,7 +1,7 @@
 {% extends "template.njk" %}
 
 {% block pageTitle %}
-  {{ common.serviceName }}
+
 {% endblock %}
 
 {% block head %}
@@ -23,6 +23,15 @@
 {% block content %}
 
   {% block header %}
+
+
+
+    {{ govukHeader({
+      homepageUrl: "#",
+      serviceName: common.serviceName,
+      serviceUrl: "#"
+    }) }}
+
 
     {% block cookie_message %}
       <p>{{cookieText | safe }} </p>
@@ -48,16 +57,26 @@
 {% endblock %}
 
 {% block footer %}
-  {% block footer_support_links %}
-    <ul>
-      <li><a href="/cookie">Cookies</a></li>
-      <li><a href="/terms-and-conditions">Terms and conditions</a></li>
-      <li><a href="/privacy-policy">Privacy Policy</a></li>
-    </ul>
-  {% endblock %}
-  {% block licence_message %}
-    <p>{{common.ogl | safe}}</p>
-  {% endblock %}
+
+  {{ govukFooter({
+    meta: {
+      items: [
+        {
+          href: "/cookie",
+          text: "Cookies"
+        },
+        {
+          href: "/terms-and-conditions",
+          text: "Terms and conditions"
+        },
+        {
+          href: "/privacy-policy",
+          text: "Privacy Policy"
+        }
+      ]
+    }
+  }) }}
+
 {% endblock %}
 
 {% block bodyEnd %}

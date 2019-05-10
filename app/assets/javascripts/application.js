@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars  */
 /* eslint-disable no-undef  */
 const saveProgress = require('./save-progress');
+const govukFrontend = require('govuk-frontend/all');
 
 (function (global) {
   'use strict';
@@ -18,6 +19,9 @@ const saveProgress = require('./save-progress');
   global.DIVORCE = DIVORCE;
 })(window);
 
+$(document).ready(() => {
+  govukFrontend.initAll();
+});
 
 /*
 $(document).ready(function() {

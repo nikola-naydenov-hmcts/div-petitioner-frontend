@@ -5,6 +5,7 @@ const https = require('https');
 const fs = require('fs');
 const express = require('express');
 const nunjucks = require('express-nunjucks');
+const nunjucksBase = require('nunjucks');
 const favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
 const requireDir = require('require-directory');
@@ -89,6 +90,7 @@ exports.init = listenForConnections => {
     autoescape: true,
     watch: isDev,
     noCache: isDev,
+    loader: nunjucksBase.FileSystemLoader,
     filters: nunjucksFilters
   });
 

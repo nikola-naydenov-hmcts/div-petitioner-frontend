@@ -1,7 +1,7 @@
 {% from "common/components/formElements.html" import yesNoRadioHeading %}
-{% from "components/radios/macro.njk" import govukRadios %}
+{% from "radios/macro.njk" import govukRadios %}
+{% from "input/macro.njk" import govukInput %}
 {% extends "question.html" %}
-
 {% block cookie_message %}
     <p>
         {{ content.cookie | safe }}
@@ -15,38 +15,89 @@
 
 
 {% block form %}
+    {% set emailHtml %}
+        {{ govukInput({
+            id: "contact-by-email",
+            name: "contact-by-email",
+            type: "email",
+            classes: "govuk-!-width-one-third",
+            label: {
+                text: "Email address"
+            },
+            attributes: {
+                spellcheck: "false"
+            }
+        }) }}
+    {% endset -%}
 
-{{ govukRadios({
-    classes: "govuk-radios--inline",
-    idPrefix: "changed-name",
-    name: "screenHasMarriageBroken",
-    fieldset: {
-        legend: {
-            text: "Have you changed your name?",
-            isPageHeading: true,
-            classes: "govuk-fieldset__legend--xl"
-        }
-    },
-    hint: {
-        text: "This includes changing your last name or spelling your name differently."
-    },
-    items: [
-        {
-            value: "yes",
-            text: "Yes"
+    {% set phoneHtml %}
+        {{ govukInput({
+            id: "contact-by-phone",
+            name: "contact-by-phone",
+            type: "tel",
+            classes: "govuk-!-width-one-third",
+            label: {
+                text: "Phone number"
+            }
+        }) }}
+    {% endset -%}
+
+    {% set textHtml %}
+        {{ govukInput({
+            id: "contact-by-text",
+            name: "contact-by-text",
+            type: "tel",
+            classes: "govuk-!-width-one-third",
+            label: {
+                text: "Mobile phone number"
+            }
+        }) }}
+    {% endset -%}
+
+    {{ govukRadios({
+        idPrefix: "how-contacted-conditional",
+        name: "how-contacted",
+        fieldset: {
+            legend: {
+                text: "How would you prefer to be contacted?",
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--xl"
+            }
         },
-        {
-            value: "no",
-            text: "No"
-        }
-    ]
-}) }}
+        hint: {
+            text: "Select one option."
+        },
+        items: [
+            {
+                value: "email",
+                text: "Email",
+                conditional: {
+                html: emailHtml
+            }
+            },
+            {
+                value: "phone",
+                text: "Phone",
+                conditional: {
+                html: phoneHtml
+            }
+            },
+            {
+                value: "text",
+                text: "Text message",
+                conditional: {
+                html: textHtml
+            }
+            }
+        ]
+    }) }}
+    
 
 {% endblock %}
 
 {% block saveAndClose %}{% endblock %}
 
-{#
+{#  OLD MARKUP
 {% block form %}
 
     <p class="text"> {{content.line1 | safe }}</p>
